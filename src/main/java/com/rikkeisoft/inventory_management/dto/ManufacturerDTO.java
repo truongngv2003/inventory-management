@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class ManufacturerDTO {
     private Long id;
 
-    @NotBlank(message = "Name cannot be null or blank")
-    @Size(max = 50, message = "Name cannot be longer than 50 characters")
+    @NotBlank(message = "Manufacturer's name cannot be null or blank")
+    @Size(max = 50, message = "Manufacturer's name cannot be longer than 50 characters")
     private String name;
 }
