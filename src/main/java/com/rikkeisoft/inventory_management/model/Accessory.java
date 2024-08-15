@@ -44,7 +44,7 @@ public class Accessory {
     private Date updateDate;
 
     @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
+    private Boolean isDeleted = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manufacturer_id", nullable = false)

@@ -20,7 +20,7 @@ public class Manufacturer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, length = 50)
     private String name;
 
     @CreationTimestamp
@@ -34,7 +34,7 @@ public class Manufacturer {
     private Date updateDate;
 
     @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
+    private Boolean isDeleted = false;
 
     @OneToMany(mappedBy = "manufacturer", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Car> cars;

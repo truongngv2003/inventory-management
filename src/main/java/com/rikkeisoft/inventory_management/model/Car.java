@@ -29,7 +29,7 @@ public class Car {
     private Date creationDate;
 
     @UpdateTimestamp
-    @Column(name = "update_date")
+    @Column(name = "update_date", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date updateDate;
 
