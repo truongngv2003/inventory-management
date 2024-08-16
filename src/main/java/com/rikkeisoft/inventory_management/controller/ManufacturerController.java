@@ -15,7 +15,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ManufacturerController {
 
-    @Autowired
     private final ManufacturerService manufacturerService;
 
     @GetMapping

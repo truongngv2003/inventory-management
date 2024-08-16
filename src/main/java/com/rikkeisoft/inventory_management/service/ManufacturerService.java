@@ -16,7 +16,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ManufacturerService {
 
-    @Autowired
     private final ManufacturerRepository manufacturerRepository;
 
 
