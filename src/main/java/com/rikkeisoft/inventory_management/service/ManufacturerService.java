@@ -49,7 +49,7 @@ public class ManufacturerService {
         Manufacturer manufacturer = manufacturerRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Manufacturer not found with id = " + id));
 
-        if (manufacturerRepository.existsByName(manufacturerDTO.getName())) {
+        if (!manufacturer.getName().equals(manufacturerDTO.getName()) && manufacturerRepository.existsByName(manufacturerDTO.getName())) {
             throw new DataIntegrityViolationException("Manufacturer with the same name already exists");
         }
 
