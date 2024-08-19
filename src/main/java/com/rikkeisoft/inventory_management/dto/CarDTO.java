@@ -1,6 +1,5 @@
 package com.rikkeisoft.inventory_management.dto;
 
-import com.rikkeisoft.inventory_management.model.Manufacturer;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
