@@ -2,6 +2,7 @@ package com.rikkeisoft.inventory_management.controller;
 
 import com.rikkeisoft.inventory_management.dto.CarDTO;
 import com.rikkeisoft.inventory_management.service.CarService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,4 +32,11 @@ public class CarController {
     public ResponseEntity<CarDTO> getCarById(@PathVariable Long id){
         return ResponseEntity.ok(carService.getCarById(id));
     }
+
+
+    @PostMapping("/{manufacturerId}")
+    public ResponseEntity<CarDTO> createCar(@PathVariable Long manufacturerId, @RequestBody @Valid CarDTO carDTO){
+        return ResponseEntity.ok(carService.createCar(manufacturerId, carDTO));
+    }
+
 }

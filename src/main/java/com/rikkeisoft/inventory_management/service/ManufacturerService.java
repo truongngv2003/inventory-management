@@ -6,7 +6,6 @@ import com.rikkeisoft.inventory_management.mapper.ManufacturerMapper;
 import com.rikkeisoft.inventory_management.model.Manufacturer;
 import com.rikkeisoft.inventory_management.repository.ManufacturerRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -20,8 +19,7 @@ public class ManufacturerService {
 
 
     public ManufacturerDTO getManufacturerById(Long id) {
-        Manufacturer manufacturer = manufacturerRepository.findById(id)
-                .filter(m -> !m.getIsDeleted())
+        Manufacturer manufacturer = manufacturerRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Manufacturer not found or has been deleted"));
 
         return ManufacturerMapper.INSTANCE.toManufacturerDTO(manufacturer);
@@ -29,8 +27,7 @@ public class ManufacturerService {
 
 
     public List<ManufacturerDTO> getManufacturers() {
-        return manufacturerRepository.findAll().stream()
-                .filter(manufacturer -> !manufacturer.getIsDeleted())
+        return manufacturerRepository.findAllByIsDeletedFalse().stream()
                 .map(ManufacturerMapper.INSTANCE::toManufacturerDTO)
                 .toList();
     }
@@ -49,8 +46,7 @@ public class ManufacturerService {
 
     public ManufacturerDTO updateManufacturer(Long id, ManufacturerDTO manufacturerDTO) {
 
-        Manufacturer manufacturer = manufacturerRepository.findById(id)
-                .filter(m -> !m.getIsDeleted())
+        Manufacturer manufacturer = manufacturerRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Manufacturer not found with id = " + id));
 
         if (manufacturerRepository.existsByName(manufacturerDTO.getName())) {
@@ -66,8 +62,7 @@ public class ManufacturerService {
 
 
     public ManufacturerDTO deleteManufacturer(Long id) {
-        Manufacturer manufacturer = manufacturerRepository.findById(id)
-                .filter(m -> !m.getIsDeleted())
+        Manufacturer manufacturer = manufacturerRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Manufacturer not found with id = " + id));
 
         manufacturer.setIsDeleted(true);
