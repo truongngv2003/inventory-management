@@ -76,4 +76,14 @@ public class CarService {
 
         return CarMapper.INSTANCE.toCarDTO(car);
     }
+
+    public CarDTO deleteCar(Long id){
+        Car car = carRepository.findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new NotFoundException("Car not found or has been deleted"));
+
+        car.setIsDeleted(true);
+        car = carRepository.save(car);
+
+        return CarMapper.INSTANCE.toCarDTO(car);
+    }
 }
