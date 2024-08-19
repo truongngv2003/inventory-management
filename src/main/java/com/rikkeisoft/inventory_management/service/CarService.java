@@ -58,4 +58,22 @@ public class CarService {
         return CarMapper.INSTANCE.toCarDTO(car);
     }
 
+
+    public CarDTO updateCar(Long manufacturerId, Long carId, CarDTO carDTO){
+        Manufacturer manufacturer = manufacturerRepository.findByIdAndIsDeletedFalse(manufacturerId)
+                .orElseThrow(() -> new NotFoundException("Manufacturer not found or has been deleted"));
+
+        Car car = carRepository.findByIdAndIsDeletedFalse(carId)
+                .orElseThrow(() -> new NotFoundException("Car not found or has been deleted"));
+
+        if (!car.getName().equals(carDTO.getName()) && carRepository.existsByName(carDTO.getName())){
+            throw new DataIntegrityViolationException("Car with the same name already exist");
+        }
+
+        car.setName(carDTO.getName());
+
+        car = carRepository.save(car);
+
+        return CarMapper.INSTANCE.toCarDTO(car);
+    }
 }

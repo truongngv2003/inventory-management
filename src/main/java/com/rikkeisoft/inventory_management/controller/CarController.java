@@ -39,4 +39,9 @@ public class CarController {
         return ResponseEntity.ok(carService.createCar(manufacturerId, carDTO));
     }
 
+
+    @PutMapping("/{manufacturerId}/{carId}")
+    public ResponseEntity<CarDTO> updateCar(@PathVariable Long manufacturerId, @PathVariable Long carId, @RequestBody @Valid CarDTO carDTO){
+        return ResponseEntity.ok(carService.updateCar(manufacturerId, carId, carDTO));
+    }
 }
