@@ -24,6 +24,7 @@ public interface AccessoryMapper {
     @Mapping(source = "manufacturerDTO", target = "manufacturer")
     @Mapping(source = "categoryDTO", target = "category")
     @Mapping(target = "carAccessories", ignore = true)
+    @Mapping(target = "attachments", ignore = true)
     Accessory toAccessory(AccessoryDTO accessoryDTO);
 
     //    default Long map(CarAccessory.CarAccessoryId value) {

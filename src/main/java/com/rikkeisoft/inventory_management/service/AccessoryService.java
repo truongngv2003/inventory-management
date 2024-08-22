@@ -56,9 +56,8 @@ public class AccessoryService {
                 .orElseThrow(() -> new NotFoundException("Car not found or has been deleted"));
 
         CategoryDTO categoryDTO = accessoryDTO.getCategoryDTO();
-        if (!categoryRepository.existsByIdAndIsDeletedFalse(categoryDTO.getId())) {
-            throw new NotFoundException("Category not found or has been deleted");
-        }
+        Category category = categoryRepository.findByIdAndIsDeletedFalse(categoryDTO.getId())
+                .orElseThrow(() -> new NotFoundException("Category not found or has been deleted"));
 
         if (!manufacturer.equals(car.getManufacturer())) {
             throw new IllegalArgumentException("The selected car does not belong to the specified manufacturer.");
@@ -74,6 +73,7 @@ public class AccessoryService {
 
         Accessory accessory = AccessoryMapper.INSTANCE.toAccessory(accessoryDTO);
         accessory.setManufacturer(manufacturer);
+        accessory.setCategory(category);
 
         //Xu ly upload file len Cloudiary
         if (files == null || files.length == 0) {
@@ -136,30 +136,24 @@ public class AccessoryService {
 
 
     public AccessoryDTO updateAccessory(Long accessoryId, Long carId, Long manufacturerId, AccessoryDTO accessoryDTO) {
-        // Tìm kiếm Accessory cần cập nhật
         Accessory existingAccessory = accessoryRepository.findByIdAndIsDeletedFalse(accessoryId)
                 .orElseThrow(() -> new NotFoundException("Accessory not found or has been deleted"));
 
-        // Kiểm tra Manufacturer
         Manufacturer manufacturer = manufacturerRepository.findByIdAndIsDeletedFalse(manufacturerId)
                 .orElseThrow(() -> new NotFoundException("Manufacturer not found or has been deleted"));
 
-        // Kiểm tra Car
         Car car = carRepository.findByIdAndIsDeletedFalse(carId)
                 .orElseThrow(() -> new NotFoundException("Car not found or has been deleted"));
 
-        // Kiểm tra Category
         CategoryDTO categoryDTO = accessoryDTO.getCategoryDTO();
         if (!categoryRepository.existsByIdAndIsDeletedFalse(categoryDTO.getId())) {
             throw new NotFoundException("Category not found or has been deleted");
         }
 
-        // Kiểm tra xem Car có thuộc Manufacturer không
         if (!manufacturer.equals(car.getManufacturer())) {
             throw new IllegalArgumentException("The selected car does not belong to the specified manufacturer.");
         }
 
-        // Kiểm tra tên và mã code có trùng lặp với những Accessory khác trong cùng Car và Manufacturer không
         if (!existingAccessory.getName().equals(accessoryDTO.getName()) &&
                 accessoryRepository.existsByAccessoryNameAndCarAndManufacturer(accessoryDTO.getName(), car, manufacturer)) {
             throw new DataIntegrityViolationException("An accessory with the same name already exists for this car and manufacturer.");
@@ -208,7 +202,7 @@ public class AccessoryService {
 //            }
 //        }
 
-        // Cập nhật CarAccessory nếu cần thiết
+
 //        CarAccessory existingCarAccessory = carAccessoryRepository.findByCarAndAccessory(car, existingAccessory)
 //                .orElse(new CarAccessory(new CarAccessory.CarAccessoryId(car.getId(), existingAccessory.getId()), car, existingAccessory));
 //
