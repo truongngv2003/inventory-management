@@ -2,16 +2,16 @@ package com.rikkeisoft.inventory_management.model;
 
 import java.util.Date;
 import java.util.Set;
+
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "car")
-@Data
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Car {
@@ -41,5 +41,6 @@ public class Car {
     private Manufacturer manufacturer;
 
     @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private Set<CarAccessory> carAccessories;
 }

@@ -1,13 +1,12 @@
 package com.rikkeisoft.inventory_management.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "attachment")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Attachment {
@@ -25,7 +24,8 @@ public class Attachment {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "accessory_id", nullable = false)
+    @ToString.Exclude
     private Accessory accessory;
 }

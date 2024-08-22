@@ -2,17 +2,18 @@ package com.rikkeisoft.inventory_management.model;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
+
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "accessory")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Accessory {
@@ -46,17 +47,19 @@ public class Accessory {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "manufacturer_id", nullable = false)
     private Manufacturer manufacturer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @OneToMany(mappedBy = "accessory", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "accessory", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @ToString.Exclude
     private Set<CarAccessory> carAccessories;
 
-    @OneToMany(mappedBy = "accessory", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Attachment> attachments;
+    @OneToMany(mappedBy = "accessory", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @ToString.Exclude
+    private Set<Attachment> attachments = new HashSet<>();
 }

@@ -2,11 +2,11 @@ package com.rikkeisoft.inventory_management.model;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
+import lombok.*;
+
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -16,12 +16,12 @@ public class CarAccessory {
     @EmbeddedId
     private CarAccessoryId id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("carId")
     @JoinColumn(name = "car_id", insertable = false, updatable = false)
     private Car car;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("accessoryId")
     @JoinColumn(name = "accessory_id", insertable = false, updatable = false)
     private Accessory accessory;
