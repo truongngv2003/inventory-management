@@ -32,6 +32,7 @@ public class AccessoryService {
 
 
     public AccessoryDTO getAccessoryById(Long id) {
+
         Accessory accessory = accessoryRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Accessory not found or has been deleted"));
 
@@ -40,12 +41,10 @@ public class AccessoryService {
 
 
     public List<AccessoryDTO> getAccessories(Pageable pageable) {
-        List<AccessoryDTO> result = accessoryRepository.findByIsDeletedFalse(pageable).stream()
+
+        return accessoryRepository.findByIsDeletedFalse(pageable).stream()
                 .map(AccessoryMapper.INSTANCE::toAccessoryDTO)
                 .toList();
-        System.out.println(accessoryRepository.findByIsDeletedFalse(pageable).stream().toList());
-
-        return result;
     }
 
 
@@ -76,29 +75,45 @@ public class AccessoryService {
         Accessory accessory = AccessoryMapper.INSTANCE.toAccessory(accessoryDTO);
         accessory.setManufacturer(manufacturer);
 
-        // Handle file upload to Cloudinary
-        if (files != null && files.length > 0) {
-            for (MultipartFile file : files) {
-                if (!file.isEmpty()) {
-                    try {
-                        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
-                        String imageUrl = uploadResult.get("url").toString();
+        //Xu ly upload file len Cloudiary
+        if (files == null || files.length == 0) {
+            throw new NotFoundException("At least one file must be selected!");
+        }
 
-                        Attachment attachment = new Attachment();
-                        attachment.setSource(imageUrl);
-                        attachment.setExtension(file.getContentType());
-                        attachment.setName(file.getOriginalFilename());
-                        attachment.setAccessory(accessory);
 
-                        accessory.getAttachments().add(attachment);
-                    } catch (IOException e) {
-                        throw new RuntimeException("Failed to upload file: " + file.getOriginalFilename(), e);
-                    }
+        boolean hasValidFile = false;
+        for (MultipartFile file : files) {
+            if (!file.isEmpty()) {
+                hasValidFile = true;
+                break;
+            }
+        }
+
+        if (!hasValidFile) {
+            throw new NotFoundException("At least one valid file must be selected!");
+        }
+
+        for (MultipartFile file : files) {
+            if (!file.isEmpty()) {
+                try {
+                    Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+                    String imageUrl = uploadResult.get("url").toString();
+
+                    Attachment attachment = new Attachment();
+                    attachment.setSource(imageUrl);
+                    attachment.setExtension(file.getContentType());
+                    attachment.setName(file.getOriginalFilename());
+                    attachment.setAccessory(accessory);
+
+                    accessory.getAttachments().add(attachment);
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to upload file: " + file.getOriginalFilename(), e);
                 }
             }
         }
 
 
+        //------------------------------------------------------
         CarAccessory.CarAccessoryId carAccessoryId = new CarAccessory.CarAccessoryId();
         carAccessoryId.setCarId(car.getId());
         carAccessoryId.setAccessoryId(accessory.getId());
@@ -108,9 +123,9 @@ public class AccessoryService {
         carAccessory.setCar(car);
         carAccessory.setAccessory(accessory);
 
-        if (accessory.getCarAccessories() == null) {
-            accessory.setCarAccessories(new HashSet<>());
-        }
+//        if (accessory.getCarAccessories() == null) {
+//            accessory.setCarAccessories(new HashSet<>());
+//        }
 
         accessory.getCarAccessories().add(carAccessory);
         accessory = accessoryRepository.save(accessory);

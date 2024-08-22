@@ -40,7 +40,7 @@ public class AccessoryController {
     public ResponseEntity<AccessoryDTO> createAccessory(
             @RequestParam("carId") Long carId,
             @RequestParam("manufacturerId") Long manufacturerId,
-            @RequestPart("files") MultipartFile[] files,
+            @RequestPart("files") @Valid MultipartFile[] files,
             @RequestPart("accessoryDTO") @Valid AccessoryDTO accessoryDTO) {
         return ResponseEntity.ok(accessoryService.createAccessory(carId, manufacturerId, accessoryDTO, files));
     }

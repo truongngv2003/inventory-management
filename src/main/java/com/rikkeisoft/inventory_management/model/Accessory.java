@@ -22,7 +22,7 @@ public class Accessory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "code", nullable = false, unique = true)
+    @Column(name = "code", nullable = false)
     private String code;
 
     @Column(name = "name", nullable = false)
@@ -57,7 +57,7 @@ public class Accessory {
 
     @OneToMany(mappedBy = "accessory", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @ToString.Exclude
-    private Set<CarAccessory> carAccessories;
+    private Set<CarAccessory> carAccessories = new HashSet<>();
 
     @OneToMany(mappedBy = "accessory", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @ToString.Exclude
