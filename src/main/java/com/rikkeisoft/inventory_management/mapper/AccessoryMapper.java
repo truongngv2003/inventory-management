@@ -2,8 +2,7 @@ package com.rikkeisoft.inventory_management.mapper;
 
 import com.rikkeisoft.inventory_management.dto.CarDTO;
 import com.rikkeisoft.inventory_management.model.CarAccessory;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
 import com.rikkeisoft.inventory_management.dto.AccessoryDTO;
@@ -36,4 +35,7 @@ public interface AccessoryMapper {
             .map(CarMapper.INSTANCE::toCarDTO)
             .collect(Collectors.toSet());
     }
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    Accessory updateAccessoryFromDTO(AccessoryDTO accessoryDTO, @MappingTarget Accessory accessory);
 }

@@ -47,12 +47,12 @@ public class AccessoryController {
 
 
 
-    @PutMapping("/update/{accessoryId}/carId/{carId}/manufacterId/{manufacturerId}/")
+    @PutMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<AccessoryDTO> createAccessory(
-            @PathVariable Long accessoryId,
-            @PathVariable Long carId,
-            @PathVariable Long manufacturerId,
-            @RequestBody @Valid AccessoryDTO accessoryDTO){
+            @RequestParam("accessoryId") Long accessoryId,
+            @RequestParam("carId") Long carId,
+            @RequestParam("manufacturerId") Long manufacturerId,
+            @RequestPart("accessoryDTO") @Valid AccessoryDTO accessoryDTO){
         return ResponseEntity.ok(accessoryService.updateAccessory(accessoryId, carId, manufacturerId, accessoryDTO));
     }
 

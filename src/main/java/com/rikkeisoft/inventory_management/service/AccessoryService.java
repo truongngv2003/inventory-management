@@ -136,44 +136,91 @@ public class AccessoryService {
 
 
     public AccessoryDTO updateAccessory(Long accessoryId, Long carId, Long manufacturerId, AccessoryDTO accessoryDTO) {
+        // Tìm kiếm Accessory cần cập nhật
+        Accessory existingAccessory = accessoryRepository.findByIdAndIsDeletedFalse(accessoryId)
+                .orElseThrow(() -> new NotFoundException("Accessory not found or has been deleted"));
+
+        // Kiểm tra Manufacturer
         Manufacturer manufacturer = manufacturerRepository.findByIdAndIsDeletedFalse(manufacturerId)
                 .orElseThrow(() -> new NotFoundException("Manufacturer not found or has been deleted"));
 
+        // Kiểm tra Car
         Car car = carRepository.findByIdAndIsDeletedFalse(carId)
                 .orElseThrow(() -> new NotFoundException("Car not found or has been deleted"));
 
+        // Kiểm tra Category
         CategoryDTO categoryDTO = accessoryDTO.getCategoryDTO();
-        Category category = categoryRepository.findByIdAndIsDeletedFalse(categoryDTO.getId())
-                .orElseThrow(() -> new NotFoundException("Category not found or has been deleted"));
+        if (!categoryRepository.existsByIdAndIsDeletedFalse(categoryDTO.getId())) {
+            throw new NotFoundException("Category not found or has been deleted");
+        }
 
-        Accessory accessory = accessoryRepository.findByIdAndIsDeletedFalse(accessoryId)
-                .orElseThrow(() -> new NotFoundException("Accessory not found or has been deleted"));
-
+        // Kiểm tra xem Car có thuộc Manufacturer không
         if (!manufacturer.equals(car.getManufacturer())) {
             throw new IllegalArgumentException("The selected car does not belong to the specified manufacturer.");
         }
 
-        if (!accessory.getName().equals(accessoryDTO.getName()) &&
+        // Kiểm tra tên và mã code có trùng lặp với những Accessory khác trong cùng Car và Manufacturer không
+        if (!existingAccessory.getName().equals(accessoryDTO.getName()) &&
                 accessoryRepository.existsByAccessoryNameAndCarAndManufacturer(accessoryDTO.getName(), car, manufacturer)) {
             throw new DataIntegrityViolationException("An accessory with the same name already exists for this car and manufacturer.");
         }
 
-        if (!accessory.getCode().equals(accessoryDTO.getCode()) &&
+        if (!existingAccessory.getCode().equals(accessoryDTO.getCode()) &&
                 accessoryRepository.existsByAccessoryCodeAndCarAndManufacturer(accessoryDTO.getCode(), car, manufacturer)) {
             throw new DataIntegrityViolationException("An accessory with the same code already exists for this car and manufacturer.");
         }
 
-        //Chưa xét sửa Manufacturer, Cars và Attachments
-        accessory.setName(accessoryDTO.getName());
-        accessory.setCode(accessoryDTO.getCode());
-        accessory.setDescription(accessoryDTO.getDescription());
-        accessory.setPrice(accessoryDTO.getPrice());
-        //accessory.setManufacturer(manufacturer);
-        accessory.setCategory(category);
+        // Cập nhật thông tin Accessory từ DTO
+        existingAccessory = AccessoryMapper.INSTANCE.updateAccessoryFromDTO(accessoryDTO, existingAccessory);
+        //existingAccessory.setManufacturer(manufacturer);
 
-        Accessory updatedAccessory = accessoryRepository.save(accessory);
-        return AccessoryMapper.INSTANCE.toAccessoryDTO(updatedAccessory);
+        // Xử lý upload file lên Cloudinary
+//        if (files != null && files.length > 0) {
+//            boolean hasValidFile = false;
+//            for (MultipartFile file : files) {
+//                if (!file.isEmpty()) {
+//                    hasValidFile = true;
+//                    break;
+//                }
+//            }
+//
+//            if (!hasValidFile) {
+//                throw new NotFoundException("At least one valid file must be selected!");
+//            }
+//
+//            for (MultipartFile file : files) {
+//                if (!file.isEmpty()) {
+//                    try {
+//                        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+//                        String imageUrl = uploadResult.get("url").toString();
+//
+//                        Attachment attachment = new Attachment();
+//                        attachment.setSource(imageUrl);
+//                        attachment.setExtension(file.getContentType());
+//                        attachment.setName(file.getOriginalFilename());
+//                        attachment.setAccessory(existingAccessory);
+//
+//                        existingAccessory.getAttachments().add(attachment);
+//                    } catch (IOException e) {
+//                        throw new RuntimeException("Failed to upload file: " + file.getOriginalFilename(), e);
+//                    }
+//                }
+//            }
+//        }
+
+        // Cập nhật CarAccessory nếu cần thiết
+//        CarAccessory existingCarAccessory = carAccessoryRepository.findByCarAndAccessory(car, existingAccessory)
+//                .orElse(new CarAccessory(new CarAccessory.CarAccessoryId(car.getId(), existingAccessory.getId()), car, existingAccessory));
+//
+//        existingCarAccessory.setCar(car);
+//        existingAccessory.getCarAccessories().add(existingCarAccessory);
+
+        // Lưu Accessory đã cập nhật
+        existingAccessory = accessoryRepository.save(existingAccessory);
+
+        return AccessoryMapper.INSTANCE.toAccessoryDTO(existingAccessory);
     }
+
 
     //Chưa xóa các quan hệ
     public AccessoryDTO deleteAccessory(Long accessoryId) {
