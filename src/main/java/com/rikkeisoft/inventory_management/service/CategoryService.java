@@ -8,6 +8,7 @@ import com.rikkeisoft.inventory_management.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -58,11 +59,17 @@ public class CategoryService {
         return CategoryMapper.INSTANCE.toCategoryDTO(category);
     }
 
+    @Transactional
     public CategoryDTO deleteCategory(Long id) {
         Category category = categoryRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Category not found or has been deleted"));
 
+        if (category.getAccessories() != null && !category.getAccessories().isEmpty()) {
+            throw new DataIntegrityViolationException("Category cannot be deleted as it contains one or more accessories.");
+        }
+
         category.setIsDeleted(true);
+
         categoryRepository.save(category);
 
         return CategoryMapper.INSTANCE.toCategoryDTO(category);

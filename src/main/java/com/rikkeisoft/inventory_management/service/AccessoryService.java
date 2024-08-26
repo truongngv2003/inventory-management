@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import com.cloudinary.utils.ObjectUtils;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -75,6 +74,7 @@ public class AccessoryService {
         accessory.setManufacturer(manufacturer);
         accessory.setCategory(category);
 
+
         //Xu ly upload file len Cloudiary
         if (files == null || files.length == 0) {
             throw new NotFoundException("At least one file must be selected!");
@@ -123,10 +123,6 @@ public class AccessoryService {
         carAccessory.setCar(car);
         carAccessory.setAccessory(accessory);
 
-//        if (accessory.getCarAccessories() == null) {
-//            accessory.setCarAccessories(new HashSet<>());
-//        }
-
         accessory.getCarAccessories().add(carAccessory);
         accessory = accessoryRepository.save(accessory);
 
@@ -165,42 +161,8 @@ public class AccessoryService {
         }
 
         // Cập nhật thông tin Accessory từ DTO
+        existingAccessory.setManufacturer(manufacturer);
         existingAccessory = AccessoryMapper.INSTANCE.updateAccessoryFromDTO(accessoryDTO, existingAccessory);
-        //existingAccessory.setManufacturer(manufacturer);
-
-        // Xử lý upload file lên Cloudinary
-//        if (files != null && files.length > 0) {
-//            boolean hasValidFile = false;
-//            for (MultipartFile file : files) {
-//                if (!file.isEmpty()) {
-//                    hasValidFile = true;
-//                    break;
-//                }
-//            }
-//
-//            if (!hasValidFile) {
-//                throw new NotFoundException("At least one valid file must be selected!");
-//            }
-//
-//            for (MultipartFile file : files) {
-//                if (!file.isEmpty()) {
-//                    try {
-//                        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
-//                        String imageUrl = uploadResult.get("url").toString();
-//
-//                        Attachment attachment = new Attachment();
-//                        attachment.setSource(imageUrl);
-//                        attachment.setExtension(file.getContentType());
-//                        attachment.setName(file.getOriginalFilename());
-//                        attachment.setAccessory(existingAccessory);
-//
-//                        existingAccessory.getAttachments().add(attachment);
-//                    } catch (IOException e) {
-//                        throw new RuntimeException("Failed to upload file: " + file.getOriginalFilename(), e);
-//                    }
-//                }
-//            }
-//        }
 
 
 //        CarAccessory existingCarAccessory = carAccessoryRepository.findByCarAndAccessory(car, existingAccessory)
@@ -209,19 +171,21 @@ public class AccessoryService {
 //        existingCarAccessory.setCar(car);
 //        existingAccessory.getCarAccessories().add(existingCarAccessory);
 
-        // Lưu Accessory đã cập nhật
+        // Lưu Accessory
         existingAccessory = accessoryRepository.save(existingAccessory);
 
         return AccessoryMapper.INSTANCE.toAccessoryDTO(existingAccessory);
     }
 
 
-    //Chưa xóa các quan hệ
     public AccessoryDTO deleteAccessory(Long accessoryId) {
         Accessory accessory = accessoryRepository.findByIdAndIsDeletedFalse(accessoryId)
                 .orElseThrow(() -> new NotFoundException("Accessory not found or has been deleted"));
 
         accessory.setIsDeleted(true);
+        accessory.getAttachments().forEach(attachment -> attachment.setIsDeleted(true));
+        accessory.getCarAccessories().forEach(carAccessory -> carAccessory.setIsDeleted(true));
+
         accessoryRepository.save(accessory);
 
         return AccessoryMapper.INSTANCE.toAccessoryDTO(accessory);

@@ -45,8 +45,8 @@ public class CarService {
         Manufacturer manufacturer = manufacturerRepository.findByIdAndIsDeletedFalse(manufacturerId)
                 .orElseThrow(() -> new NotFoundException("Manufacturer not found or has been deleted"));
 
-        if (carRepository.existsByName(carDTO.getName())) {
-            throw new DataIntegrityViolationException("Car with the same name already exists");
+        if (carRepository.existsByNameAndManufacturerAndIsDeletedFalse(carDTO.getName(), manufacturer)) {
+            throw new DataIntegrityViolationException("Car with the same name already exists in this manufacturer");
         }
 
         ManufacturerDTO manufacturerDTO = ManufacturerMapper.INSTANCE.toManufacturerDTO(manufacturer);
@@ -59,15 +59,13 @@ public class CarService {
     }
 
 
-    public CarDTO updateCar(Long manufacturerId, Long carId, CarDTO carDTO){
-        Manufacturer manufacturer = manufacturerRepository.findByIdAndIsDeletedFalse(manufacturerId)
-                .orElseThrow(() -> new NotFoundException("Manufacturer not found or has been deleted"));
+    public CarDTO updateCar(Long carId, CarDTO carDTO){
 
         Car car = carRepository.findByIdAndIsDeletedFalse(carId)
                 .orElseThrow(() -> new NotFoundException("Car not found or has been deleted"));
 
-        if (!car.getName().equals(carDTO.getName()) && carRepository.existsByName(carDTO.getName())){
-            throw new DataIntegrityViolationException("Car with the same name already exist");
+        if (!car.getName().equals(carDTO.getName()) && carRepository.existsByNameAndManufacturerAndIsDeletedFalse(carDTO.getName(), car.getManufacturer())){
+            throw new DataIntegrityViolationException("Car with the same name already exist in this manufacturer");
         }
 
         car.setName(carDTO.getName());
@@ -80,6 +78,10 @@ public class CarService {
     public CarDTO deleteCar(Long id){
         Car car = carRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Car not found or has been deleted"));
+
+        if (carRepository.existsActiveCarAccessories(id)) {
+            throw new DataIntegrityViolationException("Car cannot be deleted as it contains one or more active accessories.");
+        }
 
         car.setIsDeleted(true);
         car = carRepository.save(car);

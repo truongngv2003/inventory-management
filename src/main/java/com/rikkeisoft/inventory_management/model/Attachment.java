@@ -24,7 +24,10 @@ public class Attachment {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
+
+    @ManyToOne
     @JoinColumn(name = "accessory_id", nullable = false)
     @ToString.Exclude
     private Accessory accessory;

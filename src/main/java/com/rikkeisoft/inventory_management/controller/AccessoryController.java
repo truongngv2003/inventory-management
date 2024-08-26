@@ -47,9 +47,9 @@ public class AccessoryController {
 
 
 
-    @PutMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PutMapping("/{id}")
     public ResponseEntity<AccessoryDTO> createAccessory(
-            @RequestParam("accessoryId") Long accessoryId,
+            @PathVariable("id") Long accessoryId,
             @RequestParam("carId") Long carId,
             @RequestParam("manufacturerId") Long manufacturerId,
             @RequestPart("accessoryDTO") @Valid AccessoryDTO accessoryDTO){
@@ -57,8 +57,8 @@ public class AccessoryController {
     }
 
 
-    @DeleteMapping("/delete/{accessoryId}")
-    public ResponseEntity<AccessoryDTO> deleteAccessory(@PathVariable Long accessoryId) {
-        return ResponseEntity.ok(accessoryService.deleteAccessory(accessoryId));
+    @DeleteMapping("/{id}")
+    public ResponseEntity<AccessoryDTO> deleteAccessory(@PathVariable Long id) {
+        return ResponseEntity.ok(accessoryService.deleteAccessory(id));
     }
 }

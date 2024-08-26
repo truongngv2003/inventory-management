@@ -16,15 +16,18 @@ public class CarAccessory {
     @EmbeddedId
     private CarAccessoryId id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @MapsId("carId")
     @JoinColumn(name = "car_id", insertable = false, updatable = false)
     private Car car;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @MapsId("accessoryId")
     @JoinColumn(name = "accessory_id", insertable = false, updatable = false)
     private Accessory accessory;
+
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
 
     @Data
     @AllArgsConstructor

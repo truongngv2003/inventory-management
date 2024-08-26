@@ -4,6 +4,7 @@ import com.rikkeisoft.inventory_management.dto.ManufacturerDTO;
 import com.rikkeisoft.inventory_management.exception.NotFoundException;
 import com.rikkeisoft.inventory_management.mapper.ManufacturerMapper;
 import com.rikkeisoft.inventory_management.model.Manufacturer;
+import com.rikkeisoft.inventory_management.repository.CarRepository;
 import com.rikkeisoft.inventory_management.repository.ManufacturerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -16,7 +17,7 @@ import java.util.List;
 public class ManufacturerService {
 
     private final ManufacturerRepository manufacturerRepository;
-
+    private final CarRepository carRepository;
 
     public ManufacturerDTO getManufacturerById(Long id) {
         Manufacturer manufacturer = manufacturerRepository.findByIdAndIsDeletedFalse(id)
@@ -64,6 +65,18 @@ public class ManufacturerService {
     public ManufacturerDTO deleteManufacturer(Long id) {
         Manufacturer manufacturer = manufacturerRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Manufacturer not found with id = " + id));
+
+        boolean hasCarsWithAccessories = carRepository.existsByManufacturerAndCarAccessoriesIsNotEmpty(manufacturer);
+
+        if (hasCarsWithAccessories) {
+            throw new IllegalArgumentException("Cannot delete manufacturer because there are cars with accessories associated with it.");
+        }
+
+        carRepository.findByManufacturerAndIsDeletedFalse(manufacturer)
+                .forEach(car -> {
+                    car.setIsDeleted(true);
+                    carRepository.save(car);
+                });
 
         manufacturer.setIsDeleted(true);
         manufacturer = manufacturerRepository.save(manufacturer);

@@ -34,15 +34,15 @@ public class CarController {
     }
 
 
-    @PostMapping("/{manufacturerId}")
-    public ResponseEntity<CarDTO> createCar(@PathVariable Long manufacturerId, @RequestBody @Valid CarDTO carDTO){
+    @PostMapping()
+    public ResponseEntity<CarDTO> createCar(@RequestParam Long manufacturerId, @RequestBody @Valid CarDTO carDTO){
         return ResponseEntity.ok(carService.createCar(manufacturerId, carDTO));
     }
 
 
-    @PutMapping("/{manufacturerId}/{carId}")
-    public ResponseEntity<CarDTO> updateCar(@PathVariable Long manufacturerId, @PathVariable Long carId, @RequestBody @Valid CarDTO carDTO){
-        return ResponseEntity.ok(carService.updateCar(manufacturerId, carId, carDTO));
+    @PutMapping("/{carId}")
+    public ResponseEntity<CarDTO> updateCar(@PathVariable Long carId, @RequestBody @Valid CarDTO carDTO){
+        return ResponseEntity.ok(carService.updateCar(carId, carDTO));
     }
 
 

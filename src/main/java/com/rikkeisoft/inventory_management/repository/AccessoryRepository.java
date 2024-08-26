@@ -19,7 +19,7 @@ public interface AccessoryRepository extends JpaRepository<Accessory, Long> {
 
     Page<Accessory> findByIsDeletedFalse(Pageable pageable);
 
-    @Query("SELECT CASE WHEN COUNT(ca) > 0 THEN true ELSE false END " +
+    @Query("SELECT COUNT(ca) > 0 " +
             "FROM CarAccessory ca " +
             "JOIN ca.accessory a " +
             "WHERE a.name = :name " +
@@ -31,7 +31,8 @@ public interface AccessoryRepository extends JpaRepository<Accessory, Long> {
             @Param("car") Car car,
             @Param("manufacturer") Manufacturer manufacturer);
 
-    @Query("SELECT CASE WHEN COUNT(ca) > 0 THEN true ELSE false END " +
+
+    @Query("SELECT COUNT(ca) > 0 " +
             "FROM CarAccessory ca " +
             "JOIN ca.accessory a " +
             "WHERE a.code = :code " +
@@ -42,5 +43,6 @@ public interface AccessoryRepository extends JpaRepository<Accessory, Long> {
             @Param("code") String code,
             @Param("car") Car car,
             @Param("manufacturer") Manufacturer manufacturer);
+
 
 }

@@ -55,11 +55,11 @@ public class Accessory {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @OneToMany(mappedBy = "accessory", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "accessory", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @ToString.Exclude
     private Set<CarAccessory> carAccessories = new HashSet<>();
 
-    @OneToMany(mappedBy = "accessory", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "accessory", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @ToString.Exclude
     private Set<Attachment> attachments = new HashSet<>();
 }

@@ -36,6 +36,6 @@ public class Category {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private Set<Accessory> accessories;
 }
