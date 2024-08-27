@@ -35,6 +35,5 @@ public class AccessoryDTO {
 
     private CategoryDTO categoryDTO;
 
-    //@NotEmpty(message = "At least one attachment must be selected")
     private Set<AttachmentDTO> attachments;
 }

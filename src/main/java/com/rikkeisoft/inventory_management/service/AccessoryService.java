@@ -5,6 +5,7 @@ import com.rikkeisoft.inventory_management.dto.AccessoryDTO;
 import com.rikkeisoft.inventory_management.dto.CategoryDTO;
 import com.rikkeisoft.inventory_management.exception.NotFoundException;
 import com.rikkeisoft.inventory_management.mapper.AccessoryMapper;
+import com.rikkeisoft.inventory_management.mapper.CategoryMapper;
 import com.rikkeisoft.inventory_management.model.*;
 import com.rikkeisoft.inventory_management.repository.*;
 import com.rikkeisoft.inventory_management.specification.AccessorySpecification;
@@ -14,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -142,47 +142,38 @@ public class AccessoryService {
     }
 
 
-    public AccessoryDTO updateAccessory(Long accessoryId, Long carId, Long manufacturerId, AccessoryDTO accessoryDTO) {
+    public AccessoryDTO updateAccessory(Long accessoryId, AccessoryDTO accessoryDTO) {
         Accessory existingAccessory = accessoryRepository.findByIdAndIsDeletedFalse(accessoryId)
                 .orElseThrow(() -> new NotFoundException("Accessory not found or has been deleted"));
 
-        Manufacturer manufacturer = manufacturerRepository.findByIdAndIsDeletedFalse(manufacturerId)
-                .orElseThrow(() -> new NotFoundException("Manufacturer not found or has been deleted"));
-
-        Car car = carRepository.findByIdAndIsDeletedFalse(carId)
-                .orElseThrow(() -> new NotFoundException("Car not found or has been deleted"));
-
         CategoryDTO categoryDTO = accessoryDTO.getCategoryDTO();
-        if (!categoryRepository.existsByIdAndIsDeletedFalse(categoryDTO.getId())) {
-            throw new NotFoundException("Category not found or has been deleted");
-        }
+        Category category = categoryRepository.findByIdAndIsDeletedFalse(categoryDTO.getId())
+                .orElseThrow(() -> new NotFoundException("Category not found or has been deleted"));
 
-        if (!manufacturer.equals(car.getManufacturer())) {
-            throw new IllegalArgumentException("The selected car does not belong to the specified manufacturer.");
-        }
+        Manufacturer manufacturer = existingAccessory.getManufacturer();
+        List<Car> cars = existingAccessory.getCarAccessories().stream()
+                .map(CarAccessory::getCar)
+                .toList();
 
         if (!existingAccessory.getName().equals(accessoryDTO.getName()) &&
-                accessoryRepository.existsByAccessoryNameAndCarAndManufacturer(accessoryDTO.getName(), car, manufacturer)) {
-            throw new DataIntegrityViolationException("An accessory with the same name already exists for this car and manufacturer.");
+                accessoryRepository.existsByAccessoryNameAndCarsAndManufacturer(
+                        accessoryDTO.getName(), cars, manufacturer)) {
+            throw new DataIntegrityViolationException("An accessory with the same name already exists for this manufacturer and one of the associated cars.");
         }
 
         if (!existingAccessory.getCode().equals(accessoryDTO.getCode()) &&
-                accessoryRepository.existsByAccessoryCodeAndCarAndManufacturer(accessoryDTO.getCode(), car, manufacturer)) {
-            throw new DataIntegrityViolationException("An accessory with the same code already exists for this car and manufacturer.");
+                accessoryRepository.existsByAccessoryCodeAndCarsAndManufacturer(
+                        accessoryDTO.getCode(), cars, manufacturer)) {
+            throw new DataIntegrityViolationException("An accessory with the same code already exists for this manufacturer and one of the associated cars.");
         }
 
-        // Cập nhật thông tin Accessory từ DTO
-        existingAccessory.setManufacturer(manufacturer);
+        // chưa cho sửa attachment
+        accessoryDTO.setAttachments(null);
+
+        existingAccessory.setCategory(category);
+
         existingAccessory = AccessoryMapper.INSTANCE.updateAccessoryFromDTO(accessoryDTO, existingAccessory);
 
-
-//        CarAccessory existingCarAccessory = carAccessoryRepository.findByCarAndAccessory(car, existingAccessory)
-//                .orElse(new CarAccessory(new CarAccessory.CarAccessoryId(car.getId(), existingAccessory.getId()), car, existingAccessory));
-//
-//        existingCarAccessory.setCar(car);
-//        existingAccessory.getCarAccessories().add(existingCarAccessory);
-
-        // Lưu Accessory
         existingAccessory = accessoryRepository.save(existingAccessory);
 
         return AccessoryMapper.INSTANCE.toAccessoryDTO(existingAccessory);

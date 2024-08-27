@@ -59,10 +59,8 @@ public class AccessoryController {
     @PutMapping("/{id}")
     public ResponseEntity<AccessoryDTO> createAccessory(
             @PathVariable("id") Long accessoryId,
-            @RequestParam("carId") Long carId,
-            @RequestParam("manufacturerId") Long manufacturerId,
             @RequestPart("accessoryDTO") @Valid AccessoryDTO accessoryDTO){
-        return ResponseEntity.ok(accessoryService.updateAccessory(accessoryId, carId, manufacturerId, accessoryDTO));
+        return ResponseEntity.ok(accessoryService.updateAccessory(accessoryId, accessoryDTO));
     }
 
 

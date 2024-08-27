@@ -21,15 +21,11 @@ public interface AccessoryMapper {
     @Mapping(source = "carAccessories", target = "cars")
     AccessoryDTO toAccessoryDTO(Accessory accessory);
 
-    @Mapping(source = "manufacturerDTO", target = "manufacturer")
-    @Mapping(source = "categoryDTO", target = "category")
-    @Mapping(target = "carAccessories", ignore = true)
+
     @Mapping(target = "attachments", ignore = true)
     Accessory toAccessory(AccessoryDTO accessoryDTO);
 
-    //    default Long map(CarAccessory.CarAccessoryId value) {
-    //        return value != null ? value.getCarId() : null;
-    //    }
+
     default Set<CarDTO> map(Set<CarAccessory> carAccessories) {
         return carAccessories.stream()
             .map(CarAccessory::getCar)
