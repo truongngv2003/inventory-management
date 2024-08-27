@@ -7,15 +7,20 @@ import com.rikkeisoft.inventory_management.exception.NotFoundException;
 import com.rikkeisoft.inventory_management.mapper.AccessoryMapper;
 import com.rikkeisoft.inventory_management.model.*;
 import com.rikkeisoft.inventory_management.repository.*;
+import com.rikkeisoft.inventory_management.specification.AccessorySpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import com.cloudinary.utils.ObjectUtils;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -39,9 +44,15 @@ public class AccessoryService {
     }
 
 
-    public List<AccessoryDTO> getAccessories(Pageable pageable) {
+    public List<AccessoryDTO> getAccessories(String name, String description, Long accessoryId,
+                                             BigDecimal minPrice, BigDecimal maxPrice, List<Long> categoryIds,
+                                             List<Long> manufacturerIds, List<Long> carIds, Pageable pageable) {
 
-        return accessoryRepository.findByIsDeletedFalse(pageable).stream()
+        Specification<Accessory> spec = AccessorySpecification.filterAccessories(name, description, accessoryId, minPrice, maxPrice, categoryIds, manufacturerIds, carIds);
+
+        Page<Accessory> accessories = accessoryRepository.findAll(spec, pageable);
+
+        return accessories.stream()
                 .map(AccessoryMapper.INSTANCE::toAccessoryDTO)
                 .toList();
     }

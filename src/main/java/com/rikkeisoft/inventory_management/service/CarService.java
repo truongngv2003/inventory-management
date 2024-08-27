@@ -9,12 +9,15 @@ import com.rikkeisoft.inventory_management.model.Car;
 import com.rikkeisoft.inventory_management.model.Manufacturer;
 import com.rikkeisoft.inventory_management.repository.CarRepository;
 import com.rikkeisoft.inventory_management.repository.ManufacturerRepository;
+import com.rikkeisoft.inventory_management.specification.CarSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -32,8 +35,11 @@ public class CarService {
     }
 
 
-    public List<CarDTO> getCars(Pageable pageable) {
-        Page<Car> cars = carRepository.findByIsDeletedFalse(pageable);
+    public List<CarDTO> getCars(String name, Long carId, List<Long> manufacturerIds, Date createdFrom, Date createdTo, Pageable pageable) {
+        Specification<Car> spec = CarSpecification.filterCars(name, carId, manufacturerIds, createdFrom, createdTo);
+
+        Page<Car> cars = carRepository.findAll(spec, pageable);
+
         return cars.stream()
                 .map(CarMapper.INSTANCE::toCarDTO)
                 .toList();

@@ -4,13 +4,14 @@ import com.rikkeisoft.inventory_management.dto.AccessoryDTO;
 import com.rikkeisoft.inventory_management.service.AccessoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -29,10 +30,18 @@ public class AccessoryController {
 
     @GetMapping
     public ResponseEntity<List<AccessoryDTO>> getAccessories(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(accessoryService.getAccessories(pageable));
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) Long accessoryId,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false) List<Long> categoryIds,
+            @RequestParam(required = false) List<Long> manufacturerIds,
+            @RequestParam(required = false) List<Long> carIds,
+            @PageableDefault(page = 0, size = 20) Pageable pageable) {
+
+        List<AccessoryDTO> accessoryDTOs = accessoryService.getAccessories(name, description, accessoryId, minPrice, maxPrice, categoryIds, manufacturerIds, carIds, pageable);
+        return ResponseEntity.ok(accessoryDTOs);
     }
 
 

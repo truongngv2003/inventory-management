@@ -4,11 +4,13 @@ import com.rikkeisoft.inventory_management.dto.CarDTO;
 import com.rikkeisoft.inventory_management.service.CarService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -21,10 +23,15 @@ public class CarController {
 
     @GetMapping()
     public ResponseEntity<List<CarDTO>> getCars(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(carService.getCars(pageable));
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long carId,
+            @RequestParam(required = false) List<Long> manufacturerIds,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date createdFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date createdTo,
+            @PageableDefault(page = 0, size = 20) Pageable pageable) {
+
+        List<CarDTO> carDTOs = carService.getCars(name, carId, manufacturerIds, createdFrom, createdTo, pageable);
+        return ResponseEntity.ok(carDTOs);
     }
 
 

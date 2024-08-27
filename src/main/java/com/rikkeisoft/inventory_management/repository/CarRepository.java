@@ -5,18 +5,17 @@ import com.rikkeisoft.inventory_management.model.Manufacturer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface CarRepository extends JpaRepository<Car, Long> {
+public interface CarRepository extends JpaRepository<Car, Long>, JpaSpecificationExecutor<Car> {
     boolean existsByNameAndManufacturerAndIsDeletedFalse(String name, Manufacturer manufacturer);
 
     Optional<Car> findByIdAndIsDeletedFalse(Long id);
-
-    Page<Car> findByIsDeletedFalse(Pageable pageable);
 
     @Query("SELECT COUNT(ca) > 0 FROM CarAccessory ca WHERE ca.car.id = :carId AND ca.isDeleted = false")
     boolean existsActiveCarAccessories(@Param("carId") Long carId);
